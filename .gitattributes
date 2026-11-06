@@ -15,3 +15,16 @@
 *.kicad_sym text eol=lf
 *.kicad_mod text eol=lf
 *-lib-table text eol=lf
+
+# The README's light pictures stay out of LFS, so a page view costs no LFS bandwidth (ADR-010)
+docs/images/web/*.jpg -filter -diff -merge -text
+
+# Generated: GitHub collapses these in diffs and leaves them out of the language bar
+docs/sizing.md            linguist-generated
+docs/assumptions.md       linguist-generated
+docs/printing.md          linguist-generated
+docs/bom.md               linguist-generated
+plans/requirements.md     linguist-generated
+electronics/charge-board/*.kicad_sch linguist-generated
+electronics/charge-board/charge-board.kicad_pcb linguist-generated
+uv.lock                   linguist-generated
