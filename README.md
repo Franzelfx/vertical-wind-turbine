@@ -25,7 +25,7 @@ numbers.
 This is a project to enjoy, not an energy source.
 
 <!-- vawt:key-figures:start -->
-| | |
+| Figure | Value |
 | --- | --- |
 | Rotor | 245 x 890 mm, printed in ASA |
 | Post | 80 x 80 mm timber, 3 m tall |
@@ -37,7 +37,7 @@ This is a project to enjoy, not an energy source.
 | Requirements | 23 of 23 hold, on paper |
 <!-- vawt:key-figures:end -->
 
-Treat power figures as +-50 % until bench tests replace the assumptions: see
+Treat power figures as ±50 % until bench tests replace the assumptions: see
 [sizing](docs/sizing.md), [assumptions](docs/assumptions.md) and [bench tests](plans/bench.md).
 
 ## How it works
@@ -50,7 +50,7 @@ flowchart LR
     guard --> charger[BQ25798<br/>charger]
     charger --> pack[(3S Li-ion<br/>pack)]
     pack --> load([Your load])
-    mcu[ESP32-C3] -. tracks the rotor's best point .-> charger
+    mcu[ESP32-C3] -. tracks the best point .-> charger
 ```
 
 The relay needs no battery and no firmware: the overvoltage itself opens it
@@ -87,7 +87,7 @@ All are computer renders, and the garden is set dressing. Select one for full si
 ## Layout
 
 ```text
-src/vawt/          spec.py: every number. system/: sizing and requirements. io/: docs, booklet, mesh import
+src/vawt/          spec.py: every number. system/: sizing, requirements. io/: docs, booklet, meshes
 cad/freecad/       The parts and assembly, as FreeCAD Python
 cad/vendor/        The licensed rotor, not in git
 electronics/       KiCad: charge-board/ with its schematic as code, lib/ with project parts

@@ -171,7 +171,7 @@ def key_figures() -> str:
     solar_kwh = YARDSTICK.solar_panel_w * YARDSTICK.solar_kwh_per_kwp / 1000
     holding = sum(r.holds() for r in rq.REQUIREMENTS)
     side = SITE.pier_width
-    return f"""| | |
+    return f"""| Figure | Value |
 | --- | --- |
 | Rotor | {ROTOR.diameter:.0f} x {spec.rotor_height():.0f} mm, printed in ASA |
 | Post | {side:.0f} x {side:.0f} mm timber, {SITE.pier_height / 1000:.0f} m tall |
