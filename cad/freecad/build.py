@@ -28,7 +28,7 @@ import Part  # noqa: E402
 from shapes import box, cyl_x, cyl_y, cyl_z, fuse, tube_along  # noqa: E402
 
 from vawt import spec  # noqa: E402
-from vawt.spec import BOARD, BRACKET, ENCLOSURE, LAYOUT, PRINTER, ROTOR, SITE  # noqa: E402
+from vawt.spec import BATTERY, BOARD, BRACKET, ENCLOSURE, LAYOUT, PRINTER, ROTOR, SITE  # noqa: E402
 
 BUILD = ROOT / "build" / "cad"
 RENDER = ROOT / "build" / "render"
@@ -505,6 +505,23 @@ def main():
                 ],
                 "pier_height": SITE.pier_height,
                 "generator_z": spec.rotor_bottom_z() + dt.bell_top(),
+                "callouts": callout_points(rw, ew),
+                "label": {
+                    "size": [70.0, 40.0],
+                    "centre": [
+                        ew.Base.x,
+                        ew.Base.y + spec.enclosure_tub_depth() + spec.enclosure_lid_depth(),
+                        ew.Base.z + en.centre_z() + 30.0,
+                    ],
+                    "lines": [
+                        "CAUTION  LITHIUM-ION",
+                        f"{BATTERY.cells_series}S{BATTERY.cells_parallel}P  "
+                        f"{spec.battery_v_nominal():.1f} V  {spec.battery_ah():.0f} Ah  "
+                        f"{spec.battery_wh():.0f} Wh",
+                        "No charging below 0 \u00b0C",
+                        "Fit the parking pin before service",
+                    ],
+                },
             },
             indent=2,
         )
@@ -533,6 +550,23 @@ def main():
     print("wrote", BUILD / "wind-turbine.FCStd")
     colour_list = {name: look for name, (_, look) in {**solids, **meshes}.items()}
     (BUILD / "colours.json").write_text(json.dumps(colour_list, indent=2) + "\n")
+
+
+def callout_points(rw, ew):
+    """World points, in mm, that tools/label_render.py draws leader lines to."""
+    r = rw.Base
+    e = ew.Base
+    top = r.z + spec.rotor_height()
+    front = e.y + spec.enclosure_tub_depth() + spec.enclosure_lid_depth()
+    return {
+        "rotor": [r.x, r.y, r.z + spec.rotor_height() * 0.66],
+        "upper_bracket": [0.0, -SITE.pier_width / 2 - BRACKET.axis_to_plate / 2, top + 20.0],
+        "generator": [r.x, r.y, r.z + dt.motor_bottom() + 10.0],
+        "conduit": [SITE.pier_width / 2 + 9.0, 0.0, r.z - 480.0],
+        "enclosure": [e.x, front, e.z + en.centre_z()],
+        "pier": [SITE.pier_width / 2, SITE.pier_width / 2, 650.0],
+        "socket": [SITE.pier_width / 2 + 2.0, SITE.pier_width / 2 + 2.0, 150.0],
+    }
 
 
 def printing_page(report):

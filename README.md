@@ -11,11 +11,12 @@ power figure is an estimate. Requirements: `plans/requirements.md`. Next steps: 
 best in a gale: this is a project to enjoy, not an energy source. A 20 W solar panel makes more. See
 `docs/sizing.md`.
 
-![The whole system on its pier](docs/images/render-site.png)
+![The system on its pier, with its parts named](docs/images/render-site-labelled.png)
 
 | | |
 | --- | --- |
-| ![Rear, with the enclosure](docs/images/render-site-rear.png) | ![The turbine](docs/images/render-turbine.png) |
+| ![The turbine side of the pier](docs/images/render-site.png) | ![The turbine from below](docs/images/render-turbine.png) |
+| ![The upper bracket and top cap](docs/images/render-turbine-top.png) | ![From the side](docs/images/render-site-rear.png) |
 | ![Enclosure on the pier](docs/images/render-enclosure.png) | ![Enclosure, from below](docs/images/render-enclosure-below.png) |
 | ![Inside the enclosure](docs/images/render-enclosure-open.png) | ![Exploded enclosure](docs/images/render-enclosure-exploded.png) |
 | ![Drive train with cover](docs/images/render-drive.png) | ![Drive train, cover off](docs/images/render-drive-open.png) |
@@ -48,7 +49,7 @@ variable (`CLAUDE.md`). Put the 3MF in `cad/vendor/ugrinsky/`.
 ```sh
 uv run vawt sizing          # the figures
 tools/run-checks.sh         # everything, about 90 s
-tools/render.sh             # the pictures, a few minutes
+tools/render.sh             # the pictures, about 10 minutes (--samples 32 --width 800 for a draft)
 ```
 
 Afterwards, `build/cad/wind-turbine.FCStd` opens in FreeCAD, `build/cad/` holds each part's STEP and

@@ -32,8 +32,10 @@ How this repository works: `PROJECT-PLAYBOOK.md` (it describes another project; 
   if the board changed, since CAD reads its STEP.
 - `tools/bom.py`, needs network, seconds: refreshes the dated stock snapshot `docs/bom.md`. Run by hand after
   changing parts; `tests/test_electronics.py` fails when a part is missing from it.
-- `tools/render.sh [--only NAME] [--samples N] [--width W]`, a few minutes: writes `docs/images/render-*.png`.
-  Run by hand after visible changes; no test sees stale PNGs.
+- `tools/render.sh [--only NAME] [--samples N] [--width W]`, about 10 minutes at the defaults: writes
+  `docs/images/render-*.png` and the labelled overview (`tools/label_render.py`). Draft with
+  `--samples 32 --width 800`. Run by hand after visible changes; no test sees stale PNGs. The garden
+  around the pier is set dressing, made in `tools/render_blender.py`.
 
 ## Tools
 - `freecadcmd` exits 0 when a script raises: `tools/build-cad.sh` reads the log instead. A placed mesh's
@@ -43,6 +45,9 @@ How this repository works: `PROJECT-PLAYBOOK.md` (it describes another project; 
 - `kicad-cli` prints harmless Fontconfig and NSCocoaError lines. Go by its exit code and reports.
 - KiCad's Python is 3.9 and cannot import `vawt`: `tools/kicad_place.py` gets `build/kicad/board.json`.
 - MakerWorld answers 403 to automated requests: the 3MF comes from a person (ADR-003).
+- Blender's STL import keeps the file's millimetres and sets the object's scale to 0.001, so a shader's
+  Object coordinates are in mm and fine textures average to flat. Use Geometry > Position, in metres.
+- `magick montage` previews can show banding that is not in the image: check a full-size crop.
 
 ## Machine notes (macOS)
 - `uv`, `kicad-cli` and `ffmpeg` are on `PATH`. FreeCAD and Blender are apps: `FREECADCMD`, `KICAD_CLI`,

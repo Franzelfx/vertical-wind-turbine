@@ -7,3 +7,4 @@ BLENDER="${BLENDER:-/Applications/Blender.app/Contents/MacOS/Blender}"
 "$ROOT/tools/build-cad.sh" >/dev/null
 "$BLENDER" -b --factory-startup -P "$ROOT/tools/render_blender.py" -- "$@" \
   | grep -E "^wrote|Error|Traceback" || true
+cd "$ROOT" && uv run python tools/label_render.py
