@@ -32,6 +32,9 @@ How this repository works: `PROJECT-PLAYBOOK.md` (it describes another project; 
   if the board changed, since CAD reads its STEP.
 - `tools/bom.py`, needs network, seconds: refreshes the dated stock snapshot `docs/bom.md`. Run by hand after
   changing parts; `tests/test_electronics.py` fails when a part is missing from it.
+- `uv run vawt pdf`, seconds: writes the booklet for friends, `build/report/vertical-wind-turbine.pdf`, from
+  `report/booklet.typ`. Run by hand after visible changes. Figures in its prose come from `data.json`
+  (ADR-009): `tests/test_report.py` fails on one typed by hand. Not for publication yet (ADR-003).
 - `tools/render.sh [--only NAME] [--samples N] [--width W]`, about 10 minutes at the defaults: writes
   `docs/images/render-*.png` and the labelled overview (`tools/label_render.py`). Draft with
   `--samples 32 --width 800`. Run by hand after visible changes; no test sees stale PNGs. The garden

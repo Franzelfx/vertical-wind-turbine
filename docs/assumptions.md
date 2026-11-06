@@ -22,3 +22,6 @@ Each line is a number nobody has measured. `plans/bench.md` names each test.
 | `copper_limit_w = 12.0` | thermal limit of a 124 g motor in free air; B2 |
 | `efficiency = 0.85` | at light load and large step; B2 |
 | `cell_ah = 3.5` | LG MJ1 / Samsung 35E class; check the bought pack |
+| `phone_wh = 15.0` | a typical smartphone battery; a yardstick only |
+| `solar_kwh_per_kwp = 950.0` | fixed panel in Germany; a yardstick only |
+| `electricity_eur_kwh = 0.35` | German household price; a yardstick only |

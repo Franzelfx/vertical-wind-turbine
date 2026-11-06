@@ -1,7 +1,7 @@
 # Hardware
 
 > Written by hand from `src/vawt/spec.py` and the schematic; the netlist in `build/kicad/` is the full
-> electronic part list. No prices or stock have been checked yet (`plans/electronics.md`, E5).
+> electronic part list. Only the board's parts have prices and stock so far: `docs/bom.md`.
 
 ## Print (ASA unless noted)
 

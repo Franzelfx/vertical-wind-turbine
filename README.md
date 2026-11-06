@@ -33,6 +33,7 @@ cad/vendor/        The licensed rotor, not in git
 electronics/       KiCad: charge-board/ with its schematic as code, lib/ with project parts
 firmware/          ESP32-C3, not started
 tools/             run-checks, build-cad, build-electronics, render
+report/            The booklet's text and layout, as Typst
 tests/             Requirements, CAD report, ERC and DRC, doc integrity
 plans/             Intent: requirements, mechanical, electronics, bench tests
 docs/              State: generated pages, decisions, images
@@ -50,6 +51,7 @@ variable (`CLAUDE.md`). Put the 3MF in `cad/vendor/ugrinsky/`.
 uv run vawt sizing          # the figures
 tools/run-checks.sh         # everything, about 90 s
 tools/render.sh             # the pictures, about 10 minutes (--samples 32 --width 800 for a draft)
+uv run vawt pdf             # the booklet for friends: build/report/vertical-wind-turbine.pdf
 ```
 
 Afterwards, `build/cad/wind-turbine.FCStd` opens in FreeCAD, `build/cad/` holds each part's STEP and

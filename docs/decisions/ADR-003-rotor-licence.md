@@ -21,5 +21,7 @@ the page. Its licence is the "Standard Digital File License": personal use, no r
 - Anyone else cloning the repository downloads the 3MF themselves. The CAD build then still works.
 - **Before publishing the repository or selling a kit, read the licence on the model's page.** A
   private repository of your own is fine; publishing renders or derived parts may not be.
+- The booklet (ADR-009) shows the renders too, so it is a private copy for friends until that licence
+  has been read.
 - The new drive parts are original work and bolt onto the printed rotor; the rotor itself is unchanged
   apart from three drilled holes.

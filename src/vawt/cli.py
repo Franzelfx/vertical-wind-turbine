@@ -9,6 +9,7 @@ COMMANDS = {
         "vawt.io.docs",
         "regenerate docs/sizing.md, docs/assumptions.md and CLAUDE's guard rails",
     ),
+    "pdf": ("vawt.io.report", "build the booklet: build/report/vertical-wind-turbine.pdf"),
     "import-turbine": ("vawt.io.import_turbine", "extract the rotor meshes from the 3MF to build/"),
 }
 

@@ -7,7 +7,12 @@ requires-python = ">=3.11"  # spec.py is also imported by FreeCAD's bundled Pyth
 dependencies = []  # the core stays dependency-free, so sizing runs in milliseconds
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = [
+    "matplotlib>=3.11.2",
+    "pytest>=8",
+    "ruff>=0.6",
+    "typst>=0.15.2",
+]
 
 [project.scripts]
 vawt = "vawt.cli:main"

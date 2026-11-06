@@ -23,3 +23,4 @@ What exists now, each page naming its source. Intent lives in `plans/`.
 | [ADR-006-overvoltage-relay.md](decisions/ADR-006-overvoltage-relay.md) | A self-powered relay isolates the charger |
 | [ADR-007-charger-and-controller.md](decisions/ADR-007-charger-and-controller.md) | BQ25798, tracked by an ESP32-C3 |
 | [ADR-008-enclosure.md](decisions/ADR-008-enclosure.md) | A printed ASA enclosure on the shaded side |
+| [ADR-009-booklet.md](decisions/ADR-009-booklet.md) | The booklet is Typst, fed by the model |

@@ -270,6 +270,16 @@ class Printer:
     bed: float = 256.0  # BambuStudio is installed; the 3MF targets a 256 mm bed
 
 
+@dataclass(frozen=True)
+class Yardstick:
+    """Everyday comparisons in the booklet. Not part of the design; no bench test replaces them."""
+
+    phone_wh: float = 15.0  # ASSUMPTION: a typical smartphone battery; a yardstick only
+    solar_panel_w: float = 20.0  # the small panel the README compares with
+    solar_kwh_per_kwp: float = 950.0  # ASSUMPTION: fixed panel in Germany; a yardstick only
+    electricity_eur_kwh: float = 0.35  # ASSUMPTION: German household price; a yardstick only
+
+
 SITE = Site()
 ROTOR = Rotor()
 BRACKET = OriginalBracket()
@@ -282,6 +292,7 @@ BATTERY = Battery()
 BOARD = Board()
 ENCLOSURE = Enclosure()
 PRINTER = Printer()
+YARDSTICK = Yardstick()
 
 
 # --- derived values ------------------------------------------------------------------------------
