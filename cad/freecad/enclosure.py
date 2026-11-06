@@ -4,7 +4,18 @@ Local frame: x across (centred), z up from the outer underside of the tub, y fro
 face towards the lid. +y points away from the pier.
 """
 
-from shapes import box, cut, cyl_y, cyl_z, extrude_x, fuse, rounded_loop_y, rounded_prism_y
+from shapes import (
+    V,
+    box,
+    cut,
+    cyl_y,
+    cyl_z,
+    extrude_x,
+    fuse,
+    rounded_loop_y,
+    rounded_prism_y,
+    tapered_prism_y,
+)
 
 from vawt import spec
 from vawt.spec import BATTERY, BOARD
@@ -192,6 +203,8 @@ def resistor_box():
 
 
 def tub():
+    """Prints back-down. A 45 degree taper carries the rim, so it needs no supports."""
+    rim_y0 = tub_depth() - E.flange_thickness
     body = rounded_prism_y(outer_w(), outer_h(), 0, tub_depth(), E.corner_radius, 0, centre_z())
     cavity = rounded_prism_y(
         E.inner_width,
@@ -202,13 +215,15 @@ def tub():
         0,
         centre_z(),
     )
-    rim = rounded_prism_y(
-        spec.enclosure_flange_width(),
-        spec.enclosure_flange_height(),
-        tub_depth() - E.flange_thickness,
-        tub_depth(),
+    flange_size = (spec.enclosure_flange_width(), spec.enclosure_flange_height())
+    rim = rounded_prism_y(*flange_size, rim_y0, tub_depth(), E.flange_corner_radius, 0, centre_z())
+    taper = tapered_prism_y(
+        (outer_w(), outer_h()),
+        E.corner_radius,
+        rim_y0 - E.flange,
+        flange_size,
         E.flange_corner_radius,
-        0,
+        rim_y0,
         centre_z(),
     )
     # Back plate with the four ears: reaches past the rim so the screw heads stay reachable
@@ -239,14 +254,13 @@ def tub():
                 x + 4,
             )
         )
-    pads = [cyl_y(9.0, -E.standoff_from_wood, 0, x, z) for x, z in ear_holes()]
-    solid = fuse([body, rim, ears, *gussets, *pads]).cut(cavity)
+    solid = fuse([body, rim, taper, ears, *gussets]).cut(cavity)
     # What goes back inside the cavity: board posts and resistor lands
     posts = [cyl_y(E.pcb_standoff_dia / 2, E.wall - 0.1, pcb_y(), x, z) for x, z in pcb_holes()]
     x0, x1, _, _, z0, z1 = resistor_box()
     lands = [
         cyl_y(4.5, E.wall - 0.1, E.wall + 3.0, x, z)
-        for x in (x0 - 0.0 + 3, x1 - 3)
+        for x in (x0 + 3, x1 - 3)
         for z in (z0 - 5, z1 + 5)
     ]
     ribs = []
@@ -256,9 +270,7 @@ def tub():
         ribs.append(box(bx0 + 6, bx1 - 6, E.wall - 0.1, E.wall + 3.0, z - 2, z + 2))
     solid = fuse([solid, *posts, *lands, *ribs])
     holes = [cyl_y(E.pcb_insert_dia / 2, E.wall + 2.0, pcb_y() + 1, x, z) for x, z in pcb_holes()]
-    holes += [
-        cyl_y(E.ear_hole_dia / 2, -E.standoff_from_wood - 1, 10, x, z) for x, z in ear_holes()
-    ]
+    holes += [cyl_y(E.ear_hole_dia / 2, -1, 10, x, z) for x, z in ear_holes()]
     # Rim: gasket groove and heat-set inserts, opened from the rim's face
     centre_w = outer_w() + 2 * E.gasket_offset
     centre_h = outer_h() + 2 * E.gasket_offset
@@ -269,33 +281,42 @@ def tub():
         tub_depth() + 1,
         E.corner_radius + E.gasket_offset,
         E.gasket_groove_width,
-    ).translated((0, 0, centre_z()))
+    ).translated(V(0, 0, centre_z()))
     holes.append(groove)
     holes += [
         cyl_y(E.rim_insert_dia / 2, tub_depth() - 8, tub_depth() + 1, x, z) for x, z in rim_screws()
     ]
-    # Rim bosses keep the insert pockets in solid material behind the flange
-    bosses = [
-        cyl_y(5.0, tub_depth() - 10, tub_depth() - E.flange_thickness + 0.1, x, z)
-        for x, z in rim_screws()
-    ]
-    solid = fuse([solid, *bosses])
     for _, x, y, dia in openings():
         holes.append(cyl_z(dia / 2, -1, E.wall + 1, x, y))
     return cut(solid, holes)
 
 
+def standoff():
+    """One of four spacers between the tub's ears and the wood. Separate, so the tub lies flat."""
+    ring = cyl_y(9.0, -E.standoff_from_wood, 0)
+    return ring.cut(cyl_y(E.ear_hole_dia / 2, -E.standoff_from_wood - 1, 1))
+
+
+def standoffs():
+    return [standoff().translated(V(x, 0, z)) for x, z in ear_holes()]
+
+
 def lid():
+    """Prints front-down. A 45 degree taper carries the rim, leaving a 1 mm ledge: no supports."""
     y0 = tub_depth()
     y1 = y0 + lid_depth()
+    run = E.flange - 1.0  # 45 degrees: as far out as it rises
+    rim_y1 = y1 - run
+    flange_size = (spec.enclosure_flange_width(), spec.enclosure_flange_height())
     body = rounded_prism_y(outer_w(), outer_h(), y0, y1, E.corner_radius, 0, centre_z())
-    rim = rounded_prism_y(
-        spec.enclosure_flange_width(),
-        spec.enclosure_flange_height(),
-        y0,
-        y0 + E.flange_thickness,
+    rim = rounded_prism_y(*flange_size, y0, rim_y1, E.flange_corner_radius, 0, centre_z())
+    taper = tapered_prism_y(
+        (outer_w() + 2 * run, outer_h() + 2 * run),
         E.flange_corner_radius,
-        0,
+        rim_y1,
+        (outer_w(), outer_h()),
+        E.corner_radius,
+        y1,
         centre_z(),
     )
     cavity = rounded_prism_y(
@@ -307,12 +328,13 @@ def lid():
         0,
         centre_z(),
     )
-    label = rounded_prism_y(70, 40, y1 - 0.6, y1 + 1, 2, 0, centre_z() + 30)
-    solid = fuse([body, rim]).cut(cavity).cut(label)
+    # No recess for the warning label: on the bed side it would be a 70 mm bridge. Use a sticker.
+    solid = fuse([body, rim, taper]).cut(cavity)
     holes = []
     for x, z in rim_screws():
-        holes.append(cyl_y(E.rim_screw_dia / 2, y0 - 1, y0 + E.flange_thickness + 1, x, z))
-        holes.append(cyl_y(4.2, y0 + E.flange_thickness - 2, y0 + E.flange_thickness + 1, x, z))
+        seat = y0 + E.flange_thickness - 2  # where the screw head lands
+        holes.append(cyl_y(E.rim_screw_dia / 2, y0 - 1, seat + 1, x, z))
+        holes.append(cyl_y(4.2, seat, y1 + 1, x, z))  # counterbore through the taper
     return cut(solid, holes)
 
 
@@ -322,7 +344,7 @@ def gasket():
     y0 = tub_depth() - E.gasket_groove_depth
     return rounded_loop_y(
         centre_w, centre_h, y0, tub_depth(), E.corner_radius + E.gasket_offset, E.gasket_cord_dia
-    ).translated((0, 0, centre_z()))
+    ).translated(V(0, 0, centre_z()))
 
 
 def hood():
@@ -374,7 +396,8 @@ def hood():
     ]
     cheeks = [extrude_x(cheek_points, x, x + t) for x in (-half, half - t)]
     tab_half = E.ear_width / 2
-    tab = box(-tab_half, tab_half, y_rear, y_rear + t, hole_z - 9, z_rear + t)
+    # Stops inside the roof's thickness: the roof's top lies flat on the bed when printing
+    tab = box(-tab_half, tab_half, y_rear, y_rear + t, hole_z - 9, z_rear + t - 1)
     solid = fuse([roof, lip, *cheeks, tab])
     screw_holes = [
         cyl_y(E.ear_hole_dia / 2, y_rear - 1, y_rear + t + 1, x, hole_z)
@@ -440,6 +463,8 @@ def rim_screw_parts():
 
 __all__ = [
     "opening",
+    "standoff",
+    "standoffs",
     "wires",
     "battery",
     "battery_box",

@@ -23,7 +23,7 @@ Legend: **[U]** your decision or action, **[C]** Claude does it, **[U+C]** toget
 - [x] [C] Drive flange, bracket, motor plate, coupling and cover in `cad/freecad/drivetrain.py`
 - [x] [C] Tub, lid, hood and gasket in `cad/freecad/enclosure.py`
 - [x] [C] Assembly on the pier, collision checks, renders
-- [ ] [C] Add the print orientation of each part, with an overhang check
+- [x] [C] Print orientation of each part with an overhang check: `docs/printing.md`
 
 ## Phase M2: First prints
 Cheap, early, and before the full rotor: the 13.5 h sections come after these.

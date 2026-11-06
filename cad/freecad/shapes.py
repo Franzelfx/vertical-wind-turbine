@@ -40,6 +40,21 @@ def rounded_loop_y(width, height, y0, y1, radius, band):
     return outer.cut(inner)
 
 
+def _rounded_wire_y(width, height, radius, y, cz):
+    solid = rounded_prism_y(width, height, y, y + 1, radius, 0, cz)
+    face = next(f for f in solid.Faces if abs(f.CenterOfMass.y - y) < 1e-6)
+    return face.OuterWire
+
+
+def tapered_prism_y(size0, radius0, y0, size1, radius1, y1, cz=0.0):
+    """A solid along y blending one rounded rectangle (width, height) into another."""
+    wires = [
+        _rounded_wire_y(size0[0], size0[1], radius0, y0, cz),
+        _rounded_wire_y(size1[0], size1[1], radius1, y1, cz),
+    ]
+    return Part.makeLoft(wires, True, True)
+
+
 def extrude_x(points_yz, x0, x1):
     """A prism along x from a polygon given in (y, z)."""
     pts = [V(x0, y, z) for y, z in points_yz]

@@ -25,3 +25,15 @@ but charges differently, and this project does not cover it.
 - Seen from the front of the box, the board's x axis is mirrored, since it faces +y. So its GENERATOR
   terminal is on the box's +x side, which is where the gland and the pier's cable run are.
 - 0.4 mm pitch QFN: needs a fab with 0.1 mm gaps. `charge-board.kicad_dru` allows exactly that part.
+
+## Update: parts checked against datasheets and stock (2026-11-06)
+- BQ25798: symbol pins match Table 5-1 (`tests/test_electronics.py`). Section 8.2.2.2: 750 kHz only works
+  with a 2.2 uH inductor, which the board has; saturation at least 2 A. PROG 13.7k is Table 7-1.
+- AP63203: Table 2 recommends 3.9 uH at 3.3 V. Section 10 allows 2.2-10 uH. The only 3.9 uH parts
+  found are larger or barely stocked, so the board keeps 4.7 uH in the smaller package. Ripple is about
+  0.47 A at 12.6 V in. **Decided by Claude; watch the output at bring-up (B2).**
+- Replaced: the 3 W 12 V zener with `1SMB5927B`, since `3SMBJ5927B` has no stock. Terminal blocks are KF128
+  at 5.08 mm, since the cheaper KF301 is 5.0 mm and would not fit the footprint.
+- Not at JLCPCB, to be hand-fitted: the 1.8k 3 W resistors and the mini blade fuse holders. **The KiCad
+  fuse footprint solders the blade itself in, so a blown fuse cannot be swapped. Replace it in E3.**
+- Not yet read: the datasheets for the relay, Schottky diodes, zeners and MOSFETs (E2).

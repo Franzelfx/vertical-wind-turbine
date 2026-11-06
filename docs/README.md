@@ -7,6 +7,8 @@ What exists now, each page naming its source. Intent lives in `plans/`.
 | [sizing.md](sizing.md) | Power, yield, overvoltage, stopping, structure, vibration | generated, `uv run vawt docs` |
 | [assumptions.md](assumptions.md) | Every number nobody has measured | generated, `uv run vawt docs` |
 | [hardware.md](hardware.md) | What to buy and print | by hand |
+| [printing.md](printing.md) | Each part: orientation, size, supports | generated, `tools/build-cad.sh` |
+| [bom.md](bom.md) | Board parts with stock and price, dated | generated, `tools/bom.py` |
 | [images/](images/) | Renders and the schematic PDF | `tools/render.sh`, `tools/build-electronics.sh` |
 
 ## Decisions

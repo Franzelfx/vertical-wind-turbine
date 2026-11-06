@@ -35,7 +35,7 @@ C0805 = "Capacitor_SMD:C_0805_2012Metric"
 C1206 = "Capacitor_SMD:C_1206_3216Metric"
 SMC = "Diode_SMD:D_SMC"
 SMB = "Diode_SMD:D_SMB"
-SOD = "Diode_SMD:D_SOD-123F"
+SOD = "Diode_SMD:D_SOD-123"
 SOT23 = "Package_TO_SOT_SMD:SOT-23"
 LED = "LED_SMD:LED_0603_1608Metric"
 BLOCK2 = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal"
@@ -45,12 +45,33 @@ FUSE = "Fuse:Fuse_Blade_Mini_directSolder"
 RELAY = "Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C"
 
 
+# JLCPCB part numbers, stock-checked by tools/bom.py into docs/bom.md. Absent means buy elsewhere.
+LCSC = {
+    "100R": "C22775", "1k": "C21190", "5.1k": "C23186", "5.23k": "C23068", "10k": "C25804",
+    "13.7k": "C22793", "30.1k": "C23000", "33k": "C4216", "47k": "C25819", "100k": "C25803",
+    "1M": "C22935",
+    "1n 50V": "C100040", "47n": "C107093", "100n": "C14663", "100n 50V": "C14663",
+    "100n 100V": "C107181", "1u": "C1592", "4u7": "C380325", "10u 25V": "C5448891",
+    "10u 35V": "C6119957", "22u": "C380336",
+    "SRD-12VDC-SL-C": "C30431", "BSS123": "C78962", "BQ25798": "C2876593", "2u2 8A": "C408345",
+    "4u7 2A": "C408337", "AP63203WU": "C780769", "ESP32-C3-WROOM-02": "C2934560", "green": "C12624",
+    "BOOT": "C221880", "USB-C": "C165948",
+    # KF128 blocks: 5.08 mm like the footprint. The cheaper KF301 is 5.0 mm and would not fit
+    "GENERATOR": "C474953", "BRAKE": "C474952", "PACK": "C474952", "LOAD": "C474952",
+    "PACK_NTC": "C158012",
+}  # fmt: skip
+
+
+def lcsc(value):
+    return {"LCSC Part": LCSC[value]} if value in LCSC else {}
+
+
 def R(s, value, a, b, fp=R0603):
-    return s.part("Device:R", "R", value, fp, {"1": a, "2": b})
+    return s.part("Device:R", "R", value, fp, {"1": a, "2": b}, **lcsc(value))
 
 
 def C(s, value, a, b=GND, fp=C0603):
-    return s.part("Device:C", "C", value, fp, {"1": a, "2": b})
+    return s.part("Device:C", "C", value, fp, {"1": a, "2": b}, **lcsc(value))
 
 
 def caps(s, count, value, net, fp):
@@ -59,15 +80,22 @@ def caps(s, count, value, net, fp):
 
 
 def nfet(s, value, g, d, src):
-    return s.part("Transistor_FET:AO3400A", "Q", value, SOT23, {"G": g, "D": d, "S": src})
+    return s.part(
+        "Transistor_FET:AO3400A", "Q", value, SOT23, {"G": g, "D": d, "S": src},
+        **{"LCSC Part": "C20917"},
+    )  # fmt: skip
 
 
 def schottky(s, value, anode, cathode, fp=SMC):
-    return s.part("Device:D_Schottky", "D", value, fp, {"A": anode, "K": cathode})
+    return s.part(
+        "Device:D_Schottky", "D", value, fp, {"A": anode, "K": cathode}, **{"LCSC Part": "C19229"}
+    )
 
 
-def zener(s, value, anode, cathode, fp=SOD):
-    return s.part("Device:D_Zener", "D", value, fp, {"A": anode, "K": cathode})
+def zener(s, value, anode, cathode, part, fp=SOD):
+    return s.part(
+        "Device:D_Zener", "D", value, fp, {"A": anode, "K": cathode}, **{"LCSC Part": part}
+    )
 
 
 def input_stage() -> Sheet:
@@ -115,17 +143,26 @@ def input_stage() -> Sheet:
             "COIL_P",
             R_AXIAL,
         )
-    zener(s, "12V 3W SMBJ", "COIL_N", "COIL_P", SMB)  # clamps the coil, also its flyback path
+    zener(
+        s, "1SMB5927B", "COIL_N", "COIL_P", "C53171", SMB
+    )  # clamps the coil, also its flyback path
     s.part(
         "Transistor_FET:BSS123", "Q", "BSS123", SOT23, {"G": "REL_G", "D": "COIL_N", "S": GND}
     )  # 100 V: sees the whole bus when off
     R(s, "1M", "BUS_RAW", "REL_G")
-    zener(s, "10V", GND, "REL_G")
+    zener(s, "MMSZ5240B", GND, "REL_G", "C151060")  # 10 V
     nfet(s, "AO3400A", "RELAY_RELEASE", "REL_G", GND)  # MCU pulses this to re-close K1
     R(s, "100k", "RELAY_RELEASE", GND)
 
     s.section("Charger side of the relay")
-    s.part("Device:D_TVS", "D", "SMBJ26A", SMB, {"A1": GND, "A2": "VBUS_IN"})
+    s.part(
+        "Device:D_TVS",
+        "D",
+        "SMBJ26CA",
+        SMB,
+        {"A1": GND, "A2": "VBUS_IN"},
+        **{"LCSC Part": "C123932"},
+    )
 
     s.section("Brake: panel switch and resistor, off the board, only for parking in light wind")
     s.part("Connector_Generic:Conn_01x02", "J", "BRAKE", BLOCK2, {"Pin_1": "BUS_RAW", "Pin_2": GND})
@@ -136,7 +173,7 @@ def input_stage() -> Sheet:
     C(s, "100n", "BUS_SENSE")
     R(s, "1M", "PH_A", "TACH")
     R(s, "47k", "TACH", GND)
-    zener(s, "3V0", GND, "TACH")
+    zener(s, "MMSZ5225B", GND, "TACH", "C22399894")  # 3.0 V
     return s
 
 
@@ -329,7 +366,12 @@ def controller() -> Sheet:
 
 
 def all_sheets() -> list[Sheet]:
-    return [input_stage(), charger(), controller()]
+    sheets = [input_stage(), charger(), controller()]
+    for sheet in sheets:
+        for part in sheet.parts:
+            if part.in_bom and "LCSC Part" not in part.fields and part.value in LCSC:
+                part.fields["LCSC Part"] = LCSC[part.value]
+    return sheets
 
 
 def main() -> None:

@@ -12,7 +12,7 @@ How this repository works: `PROJECT-PLAYBOOK.md` (it describes another project; 
   word `ASSUMPTION` and a bench test in `plans/bench.md`.
 - Coordinates: z up, origin on the pier axis at ground. Turbine on -y, enclosure on +y. Board x is
   mirrored in the box (ADR-007).
-- Generated, never edit by hand: `docs/sizing.md`, `docs/assumptions.md`, `plans/requirements.md`, the
+- Generated, never edit by hand: `docs/sizing.md`, `docs/assumptions.md`, `docs/printing.md`, `docs/bom.md`, `plans/requirements.md`, the
   guard-rail block below, `electronics/charge-board/*.kicad_sch`, `electronics/charge-board/charge-board.kicad_pcb`
   (until E3 starts hand layout), everything in `build/`. Change the source, run the command, commit both.
 - Generated output (`build/`) is never committed. It holds the licensed meshes too: never commit those.
@@ -30,6 +30,8 @@ How this repository works: `PROJECT-PLAYBOOK.md` (it describes another project; 
   the spec, a requirement or a plan's status line.
 - `tools/build-cad.sh`, about 10 s: parts, assembly, report. Run `tools/build-electronics.sh` first (60 s)
   if the board changed, since CAD reads its STEP.
+- `tools/bom.py`, needs network, seconds: refreshes the dated stock snapshot `docs/bom.md`. Run by hand after
+  changing parts; `tests/test_electronics.py` fails when a part is missing from it.
 - `tools/render.sh [--only NAME] [--samples N] [--width W]`, a few minutes: writes `docs/images/render-*.png`.
   Run by hand after visible changes; no test sees stale PNGs.
 

@@ -208,6 +208,26 @@ def overlap(a, b):
     return a.common(b).Volume
 
 
+def overhang_area(mesh, up, limit_deg=46.0):
+    """Area leaning further than the limit from vertical, facing down, off the bed: what a printer
+    would have to bridge. 46 rather than 45: the tapers are exactly 45 degrees, which prints fine.
+    """
+    up = V(up.x, up.y, up.z)
+    up.normalize()
+    heights = [p.x * up.x + p.y * up.y + p.z * up.z for p in mesh.Points]
+    bed = min(heights)
+    threshold = -math.sin(math.radians(limit_deg))
+    total = 0.0
+    for facet in mesh.Facets:
+        n = facet.Normal
+        if n.x * up.x + n.y * up.y + n.z * up.z >= threshold:
+            continue
+        low = min(p[0] * up.x + p[1] * up.y + p[2] * up.z for p in facet.Points)
+        if low > bed + 0.2:
+            total += facet.Area
+    return total
+
+
 def check_all(items, seeded):
     report = {}
     for name, (a, b) in items.items():
@@ -223,23 +243,45 @@ def main():
     ew = enclosure_to_world()
 
     # Printed parts, in their own frames. These are the parts you make.
+    hood_tilt = math.radians(ENCLOSURE.hood_slope_deg)
     print_parts = {
-        "tub": (en.tub(), "ASA"),
-        "lid": (en.lid(), "ASA"),
-        "rain_hood": (en.hood(), "ASA"),
-        "drive_flange": (dt.flange(), "ASA"),
-        "drive_bracket": (dt.bracket(), "ASA"),
-        "motor_plate": (dt.motor_plate(), "ASA"),
-        "generator_cover": (dt.cover(), "ASA"),
-        "coupling": (dt.coupling(), "TPU 95A"),
+        # shape, material, count, up vector while printing, how it lies on the bed, supports needed
+        "tub": (en.tub(), "ASA", 1, V(0, 1, 0), "back on the bed, opening up", False),
+        "lid": (en.lid(), "ASA", 1, V(0, -1, 0), "front on the bed, opening up", False),
+        "rain_hood": (
+            en.hood(),
+            "ASA",
+            1,
+            V(0, -math.sin(hood_tilt), -math.cos(hood_tilt)),
+            "roof on the bed",
+            False,
+        ),
+        "standoff": (en.standoff(), "ASA", 4, V(0, 1, 0), "flat", False),
+        "drive_flange": (dt.flange(), "ASA", 1, V(0, 0, 1), "skirt on the bed, boss up", True),
+        "drive_bracket": (
+            dt.bracket(),
+            "ASA",
+            1,
+            V(0, 0, -1),
+            "top flange on the bed: layers run along the arm, its strong way",
+            True,
+        ),
+        "motor_plate": (dt.motor_plate(), "ASA", 1, V(0, 0, 1), "flat", False),
+        "generator_cover": (dt.cover(), "ASA", 1, V(0, 0, 1), "floor on the bed", False),
+        "coupling": (dt.coupling(), "TPU 95A", 1, V(0, 0, 1), "pins up", True),
     }
     report = {"parts": {}, "checks": {}}
-    for name, (shape, material) in print_parts.items():
+    for name, (shape, material, count, up, lying, supports) in print_parts.items():
         Part.export([_as_object(name, shape)], str(BUILD / f"{name}.step"))
-        shape_mesh(shape, fine=True).write(str(BUILD / f"{name}.stl"))
+        mesh = shape_mesh(shape, fine=True)
+        mesh.write(str(BUILD / f"{name}.stl"))
         bb = shape.BoundBox
         report["parts"][name] = {
             "material": material,
+            "count": count,
+            "lying": lying,
+            "supports": supports,
+            "overhang_mm2": round(overhang_area(mesh, up), 0),
             "size_mm": sorted(round(s, 1) for s in (bb.XLength, bb.YLength, bb.ZLength)),
             "volume_cm3": round(shape.Volume / 1000, 1),
             "valid": shape.isValid(),
@@ -268,6 +310,8 @@ def main():
         "stator": (moved(dt.generator_stator(), rw), "aluminium"),
         "stub": (moved(dt.upper_stub(), rw), "steel"),
     }
+    for i, shape in enumerate(en.standoffs()):
+        solids[f"standoff_{i}"] = (moved(shape, ew), "enclosure_dark")
     for i, shape in enumerate(dt.bearings()):
         solids[f"bearing_{i}"] = (moved(shape, rw), "steel")
     for i, shape in enumerate(dt.nuts()):
@@ -438,6 +482,7 @@ def main():
     }
     report["cable_length_m"] = round(Part.Wire(_curve(cable_points()).toShape()).Length / 1000, 2)
     (BUILD / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+    (ROOT / "docs" / "printing.md").write_text(printing_page(report))
 
     # Render scenes: one STL per item, then lists of what appears in each scene
     print("meshes for rendering ...", flush=True)
@@ -488,6 +533,34 @@ def main():
     print("wrote", BUILD / "wind-turbine.FCStd")
     colour_list = {name: look for name, (_, look) in {**solids, **meshes}.items()}
     (BUILD / "colours.json").write_text(json.dumps(colour_list, indent=2) + "\n")
+
+
+def printing_page(report):
+    rows = [
+        "| Part | Qty | Material | How it lies | Size (mm) | Volume (cm3) | Supports |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for name, part in report["parts"].items():
+        size = " x ".join(f"{v:.0f}" for v in reversed(part["size_mm"]))
+        needed = f"yes, {part['overhang_mm2']:.0f} mm2" if part["supports"] else "no"
+        rows.append(
+            f"| `{name}` | {part['count']} | {part['material']} | {part['lying']} | {size} "
+            f"| {part['volume_cm3']} | {needed} |"
+        )
+    table = "\n".join(rows)
+    return f"""# Printing
+
+> Generated by `tools/build-cad.sh` from `cad/freecad/build.py`; do not edit by hand
+> (`tests/test_cad.py` fails when this page and the build drift apart).
+
+For this project's own parts. STEP and STL land in `build/cad/`. All fit a {PRINTER.bed:.0f} mm bed.
+
+{table}
+
+The check counts surfaces leaning more than 46 degrees from vertical, facing down, off the bed. Parts marked "no" have
+only short bridges: hole tops, the gasket groove, the lid's 1 mm ledge. Print enclosure parts with at
+least 4 perimeters, for sealing (ADR-008). Rotor printing: `docs/hardware.md`.
+"""
 
 
 def _curve(points):

@@ -2,8 +2,8 @@
 
 Goal: a routed, fabricated, working charge board, and firmware that tracks the rotor's best point.
 
-**Status (2026-11-06):** schematic generated, ERC clean. Board has a first-pass placement that passes DRC,
-with all connections still open. No firmware. Next: E2.
+**Status (2026-11-06):** schematic generated, ERC clean, parts stock-checked. Board has a first-pass
+placement that passes DRC, with all connections still open. No firmware. Next: finish E2, then E3.
 
 Rules for every step:
 - Each pin names a net or NC: `electronics/charge-board/schematic/build.py` is the source.
@@ -24,8 +24,10 @@ Legend: **[U]** your decision or action, **[C]** Claude does it, **[U+C]** toget
 - [ ] [U] Review the schematic: `docs/images/charge-board-schematic.pdf`
 
 ## Phase E2: Parts
-- [ ] [C] Check every part against its datasheet, starting with the inductors and the AO3400's gate limit
-- [ ] [C] LCSC numbers and stock; `tools/` from `battery-swap-drone` can be reused
+- [x] [C] BQ25798 and AP63203 against their datasheets, including the inductors (ADR-007)
+- [x] [C] LCSC numbers and stock: `tools/bom.py` writes `docs/bom.md`
+- [ ] [C] Read the remaining datasheets: relay, Schottky diodes, zeners, MOSFETs
+- [ ] [U+C] Choose replaceable fuse holders: the current footprint solders the blade in
 
 ## Phase E3: Layout
 - [ ] [U+C] Real placement: the buck-boost loop first, per the BQ25798 datasheet 8.4

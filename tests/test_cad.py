@@ -93,5 +93,21 @@ def test_kicad_board_stands_where_the_enclosure_expects_it(report):
     assert tallest <= BOARD.tallest_top
 
 
+def test_parts_that_promise_no_supports_print_without_them(report):
+    """Short bridges are fine; a real overhang is not. Limit: 6 % of the part's size squared."""
+    for name, part in report["parts"].items():
+        if part["supports"]:
+            continue
+        a, b, _ = sorted(part["size_mm"], reverse=True)
+        assert part["overhang_mm2"] <= 0.06 * a * b, f"{name}: {part['overhang_mm2']} mm2"
+
+
+def test_printing_page_matches_the_build(report):
+    page = (ROOT / "docs" / "printing.md").read_text()
+    for name, part in report["parts"].items():
+        assert f"`{name}`" in page
+        assert str(part["volume_cm3"]) in page, f"{name}: rerun tools/build-cad.sh"
+
+
 def test_fcstd_exists(report):
     assert (ROOT / "build" / "cad" / "wind-turbine.FCStd").exists()

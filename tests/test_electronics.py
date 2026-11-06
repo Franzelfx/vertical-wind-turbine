@@ -80,7 +80,7 @@ def test_every_terminal_in_the_spec_exists_in_the_schematic(net):
 
 def test_tvs_protects_the_charger_side_only(net):
     comps, pins = net
-    d = _ref(comps, "SMBJ26A")
+    d = _ref(comps, "SMBJ26CA")
     assert "VBUS_IN" in {pins[(d, "1")], pins[(d, "2")]}
 
 
@@ -134,3 +134,17 @@ def test_bq25798_symbol_matches_the_datasheet_pinout():
     for name, number in re.findall(r'\(name "([^"]+)".*?\(number "(\d+)"', text, re.DOTALL):
         found.setdefault(name, []).append(number)
     assert {k: sorted(v, key=int) for k, v in found.items()} == table_5_1
+
+
+def test_bom_snapshot_lists_every_part(net):
+    comps, _ = net
+    page = (ROOT / "docs" / "bom.md").read_text()
+    listed = set(re.findall(r"\b[A-Z]+\d+\b", page))
+    for ref in comps:
+        if not ref.startswith("H"):  # mounting holes are not parts
+            assert ref in listed, f"{ref}: run tools/bom.py"
+
+
+def test_bom_snapshot_has_no_part_out_of_stock():
+    page = (ROOT / "docs" / "bom.md").read_text()
+    assert "**none**" not in page, "a part is out of stock: choose another"

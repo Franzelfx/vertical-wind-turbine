@@ -32,4 +32,6 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/vawt/io/docs.py" = ["E501"]  # page text reads better unwrapped than broken for the template
+"tools/bom.py" = ["E501"]  # the same
+"cad/freecad/build.py" = ["E501"]  # the same
 "tools/kicad_place.py" = ["B905", "UP"]  # runs under KiCad's Python 3.9
