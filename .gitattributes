@@ -1,0 +1,17 @@
+# Large binary, mesh and CAD exchange files go through Git LFS
+*.step  filter=lfs diff=lfs merge=lfs -text
+*.stp   filter=lfs diff=lfs merge=lfs -text
+*.stl   filter=lfs diff=lfs merge=lfs -text
+*.3mf   filter=lfs diff=lfs merge=lfs -text
+*.FCStd filter=lfs diff=lfs merge=lfs -text
+*.pdf   filter=lfs diff=lfs merge=lfs -text
+*.png   filter=lfs diff=lfs merge=lfs -text
+*.jpg   filter=lfs diff=lfs merge=lfs -text
+
+# KiCad text formats: keep LF, diff as text
+*.kicad_pro text eol=lf
+*.kicad_sch text eol=lf
+*.kicad_pcb text eol=lf
+*.kicad_sym text eol=lf
+*.kicad_mod text eol=lf
+*-lib-table text eol=lf

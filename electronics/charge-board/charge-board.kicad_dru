@@ -1,0 +1,11 @@
+(version 1)
+
+# BQ25798 VQFN-29: 0.4 mm pitch pads, datasheet land pattern. Needs a fab that does 0.1 mm gaps.
+(rule "bq25798_fine_pitch"
+  (constraint clearance (min 0.09mm))
+  (condition "A.Parent == 'U1' && B.Parent == 'U1'"))
+
+# ESP32-C3-WROOM-02 library footprint: thermal vias smaller than the board's default minimum.
+(rule "module_thermal_vias"
+  (constraint hole_size (min 0.2mm))
+  (condition "A.Parent == 'U3'"))

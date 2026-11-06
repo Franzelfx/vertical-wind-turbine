@@ -1,0 +1,29 @@
+# OS / editors
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Generated output, never committed
+build/
+
+# KiCad and FreeCAD local state
+*-backups/
+*.kicad_prl
+fp-info-cache
+*.lck
+~*.kicad_*
+*.FCBak
+.history/
+
+# Licensed meshes: MakerWorld "Standard Digital File License", no redistribution (ADR-003)
+cad/vendor/ugrinsky/*.3mf
+cad/vendor/ugrinsky/*.stl
