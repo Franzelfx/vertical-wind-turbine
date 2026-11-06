@@ -26,6 +26,11 @@ def test_guard_rails_in_sync():
     assert docs.guard_rails() in text, "run `uv run vawt docs`"
 
 
+def test_readme_figures_in_sync():
+    text = (ROOT / "README.md").read_text()
+    assert docs.key_figures() in text, "run `uv run vawt docs`"
+
+
 @pytest.mark.parametrize("path", MARKDOWN, ids=lambda p: str(p.relative_to(ROOT)))
 def test_backticked_paths_exist(path):
     missing = []
@@ -33,10 +38,24 @@ def test_backticked_paths_exist(path):
         token = raw.split()[0] if " " in raw else raw
         if not re.fullmatch(r"[\w.-]+(/[\w.-]+)+/?", token):
             continue
-        if token.startswith(("build/", "http")) or token.endswith(".FCStd"):
-            continue  # generated output is not committed
+        if token.startswith(("build/", "http")) or token.endswith((".FCStd", ".3mf")):
+            continue  # generated output and the licensed rotor are not committed
         if not (ROOT / token).exists():
             missing.append(token)
+    assert not missing, f"{path.name}: {missing}"
+
+
+@pytest.mark.parametrize("path", MARKDOWN, ids=lambda p: str(p.relative_to(ROOT)))
+def test_relative_links_and_images_exist(path):
+    """GitHub shows a broken picture or a 404 for these, and nothing else would notice."""
+    text = re.sub(r"```.*?```", "", path.read_text(), flags=re.DOTALL)
+    targets = re.findall(r"\]\(([^)\s]+)\)", text) + re.findall(r'(?:src|href)="([^"]+)"', text)
+    missing = [
+        target
+        for target in targets
+        if not re.match(r"https?:|#|mailto:", target)
+        and not (path.parent / target.split("#")[0]).exists()
+    ]
     assert not missing, f"{path.name}: {missing}"
 
 

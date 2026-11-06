@@ -12,7 +12,7 @@ How this repository works: `PROJECT-PLAYBOOK.md` (it describes another project; 
   word `ASSUMPTION` and a bench test in `plans/bench.md`.
 - Coordinates: z up, origin on the pier axis at ground. Turbine on -y, enclosure on +y. Board x is
   mirrored in the box (ADR-007).
-- Generated, never edit by hand: `docs/sizing.md`, `docs/assumptions.md`, `docs/printing.md`, `docs/bom.md`, `plans/requirements.md`, the
+- Generated, never edit by hand: the key-figures block in `README.md`, `docs/images/web/`, `docs/sizing.md`, `docs/assumptions.md`, `docs/printing.md`, `docs/bom.md`, `plans/requirements.md`, the
   guard-rail block below, `electronics/charge-board/*.kicad_sch`, `electronics/charge-board/charge-board.kicad_pcb`
   (until E3 starts hand layout), everything in `build/`. Change the source, run the command, commit both.
 - Generated output (`build/`) is never committed. It holds the licensed meshes too: never commit those.
@@ -32,12 +32,14 @@ How this repository works: `PROJECT-PLAYBOOK.md` (it describes another project; 
   if the board changed, since CAD reads its STEP.
 - `tools/bom.py`, needs network, seconds: refreshes the dated stock snapshot `docs/bom.md`. Run by hand after
   changing parts; `tests/test_electronics.py` fails when a part is missing from it.
+- CI (`.github/workflows/checks.yml`) runs lint and the tests a clean clone can: not CAD, electronics or the
+  booklet. A green badge does not replace `tools/run-checks.sh` (ADR-010).
 - `uv run vawt pdf`, seconds: writes the booklet for friends, `build/report/vertical-wind-turbine.pdf`, from
   `report/booklet.typ`. Run by hand after visible changes. Figures in its prose come from `data.json`
   (ADR-009): `tests/test_report.py` fails on one typed by hand. Not for publication yet (ADR-003).
 - `tools/render.sh [--only NAME] [--samples N] [--width W]`, about 10 minutes at the defaults: writes
   `docs/images/render-*.png` and the labelled overview (`tools/label_render.py`). Draft with
-  `--samples 32 --width 800`. Run by hand after visible changes; no test sees stale PNGs. The garden
+  `--samples 32 --width 800`. Run by hand after visible changes; no test sees stale PNGs. It also refreshes the README's light copies. The garden
   around the pier is set dressing, made in `tools/render_blender.py`.
 
 ## Tools

@@ -8,3 +8,4 @@ BLENDER="${BLENDER:-/Applications/Blender.app/Contents/MacOS/Blender}"
 "$BLENDER" -b --factory-startup -P "$ROOT/tools/render_blender.py" -- "$@" \
   | grep -E "^wrote|Error|Traceback" || true
 cd "$ROOT" && uv run python tools/label_render.py
+tools/web_images.sh >/dev/null

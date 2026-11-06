@@ -9,7 +9,7 @@ What exists now, each page naming its source. Intent lives in `plans/`.
 | [hardware.md](hardware.md) | What to buy and print | by hand |
 | [printing.md](printing.md) | Each part: orientation, size, supports | generated, `tools/build-cad.sh` |
 | [bom.md](bom.md) | Board parts with stock and price, dated | generated, `tools/bom.py` |
-| [images/](images/) | Renders and the schematic PDF | `tools/render.sh`, `tools/build-electronics.sh` |
+| [images/](images/) | Renders, their light copies for the README, the schematic PDF | `tools/render.sh`, `tools/build-electronics.sh` |
 
 ## Decisions
 
@@ -24,3 +24,4 @@ What exists now, each page naming its source. Intent lives in `plans/`.
 | [ADR-007-charger-and-controller.md](decisions/ADR-007-charger-and-controller.md) | BQ25798, tracked by an ESP32-C3 |
 | [ADR-008-enclosure.md](decisions/ADR-008-enclosure.md) | A printed ASA enclosure on the shaded side |
 | [ADR-009-booklet.md](decisions/ADR-009-booklet.md) | The booklet is Typst, fed by the model |
+| [ADR-010-public-repository.md](decisions/ADR-010-public-repository.md) | How the public repository presents itself |

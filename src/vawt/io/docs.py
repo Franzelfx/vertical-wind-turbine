@@ -4,13 +4,15 @@ import re
 from pathlib import Path
 
 from vawt import spec
-from vawt.spec import BATTERY, CHARGER, GENERATOR, PROTECTION, ROTOR, SITE
+from vawt.spec import BATTERY, CHARGER, GENERATOR, PROTECTION, ROTOR, SITE, YARDSTICK
 from vawt.system import requirements as rq
 from vawt.system import sizing as z
 
 ROOT = Path(__file__).resolve().parents[3]
 GUARD_START = "<!-- vawt:guard-rails:start -->"
 GUARD_END = "<!-- vawt:guard-rails:end -->"
+FIGURES_START = "<!-- vawt:key-figures:start -->"
+FIGURES_END = "<!-- vawt:key-figures:end -->"
 
 
 def sizing_page() -> str:
@@ -162,6 +164,30 @@ def guard_rails() -> str:
     return "\n".join(lines)
 
 
+def key_figures() -> str:
+    """The README's table: the figures a visitor looks for first."""
+    peak = z.peak_charge()
+    start, stop = z.charging_wind_range()
+    solar_kwh = YARDSTICK.solar_panel_w * YARDSTICK.solar_kwh_per_kwp / 1000
+    holding = sum(r.holds() for r in rq.REQUIREMENTS)
+    side = SITE.pier_width
+    return f"""| | |
+| --- | --- |
+| Rotor | {ROTOR.diameter:.0f} x {spec.rotor_height():.0f} mm, printed in ASA |
+| Post | {side:.0f} x {side:.0f} mm timber, {SITE.pier_height / 1000:.0f} m tall |
+| Battery | {BATTERY.cells_series}S{BATTERY.cells_parallel}P Li-ion, {spec.battery_wh():.0f} Wh, {spec.battery_v_empty():.1f}-{spec.battery_v_full():.1f} V |
+| Charges in winds of | {start:.1f} to {stop:.1f} m/s |
+| Best output | {peak.charge:.1f} W, at {peak.wind:.0f} m/s |
+| Average output | {z.mean_charge_power():.2f} W at an assumed {SITE.mean_wind_m_s} m/s mean wind: {z.annual_energy_kwh():.1f} kWh a year |
+| A {YARDSTICK.solar_panel_w:.0f} W solar panel, for scale | about {solar_kwh:.0f} kWh a year |
+| Requirements | {holding} of {len(rq.REQUIREMENTS)} hold, on paper |"""
+
+
+def readme_md(current: str) -> str:
+    pattern = re.compile(re.escape(FIGURES_START) + r".*?" + re.escape(FIGURES_END), re.DOTALL)
+    return pattern.sub(f"{FIGURES_START}\n{key_figures()}\n{FIGURES_END}", current)
+
+
 def claude_md(current: str) -> str:
     pattern = re.compile(re.escape(GUARD_START) + r".*?" + re.escape(GUARD_END), re.DOTALL)
     return pattern.sub(f"{GUARD_START}\n{guard_rails()}\n{GUARD_END}", current)
@@ -178,6 +204,9 @@ def main() -> None:
     for name, page in PAGES.items():
         (ROOT / name).write_text(page())
         print("wrote", name)
+    readme = ROOT / "README.md"
+    readme.write_text(readme_md(readme.read_text()))
+    print("wrote README.md key figures")
     claude = ROOT / "CLAUDE.md"
     if claude.exists():
         claude.write_text(claude_md(claude.read_text()))

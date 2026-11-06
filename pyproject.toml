@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "Specification and sizing model of a small vertical-axis wind turbine charging a 3S Li-ion pack"
 readme = "README.md"
 requires-python = ">=3.11"  # spec.py is also imported by FreeCAD's bundled Python 3.11
+keywords = ["wind-turbine", "vertical-axis-wind-turbine", "3d-printing", "freecad", "kicad"]
 dependencies = []  # the core stays dependency-free, so sizing runs in milliseconds
+
+[project.urls]
+Repository = "https://github.com/Franzelfx/vertical-wind-turbine"
 
 [dependency-groups]
 dev = [
